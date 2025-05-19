@@ -1,0 +1,8 @@
+{
+  "name": "cghrms",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite",
+  "id": "be6b0251"
+}
