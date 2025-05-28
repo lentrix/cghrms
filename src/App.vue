@@ -4,24 +4,22 @@
       <ion-menu content-id="main-content" type="overlay">
         <ion-content>
           <ion-list id="inbox-list">
-            <ion-list-header>Inbox</ion-list-header>
-            <ion-note>hi@ionicframework.com</ion-note>
+            <ion-list-header>C &amp; G | HRMS</ion-list-header>
+            <ion-note>https://hrms.candgph.com</ion-note>
 
             <ion-menu-toggle :auto-hide="false" v-for="(p, i) in appPages" :key="i">
               <ion-item @click="selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" :detail="false" class="hydrated" :class="{ selected: selectedIndex === i }">
-                <ion-icon aria-hidden="true" slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+                <ion-icon aria-hidden="true" slot="start" :md="p.mdIcon"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
-          </ion-list>
+            <ion-menu-toggle>
+              <ion-item @click="onLogout()" lines="none" :detail="false" class="hydrated">
+                <ion-icon aria-hidden="true" slot="start" :md="logOutSharp"></ion-icon>
+                <ion-label>Logout</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
 
-          <ion-list id="labels-list">
-            <ion-list-header>Labels</ion-list-header>
-
-            <ion-item v-for="(label, index) in labels" lines="none" :key="index">
-              <ion-icon aria-hidden="true" slot="start" :ios="bookmarkOutline" :md="bookmarkSharp"></ion-icon>
-              <ion-label>{{ label }}</ion-label>
-            </ion-item>
           </ion-list>
         </ion-content>
       </ion-menu>
@@ -30,7 +28,7 @@
   </ion-app>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import {
   IonApp,
   IonContent,
@@ -47,67 +45,68 @@ import {
 } from '@ionic/vue';
 import { ref } from 'vue';
 import {
-  archiveOutline,
   archiveSharp,
-  bookmarkOutline,
   bookmarkSharp,
-  heartOutline,
   heartSharp,
-  mailOutline,
+  homeSharp,
+  logOutSharp,
   mailSharp,
-  paperPlaneOutline,
   paperPlaneSharp,
-  trashOutline,
+  personSharp,
   trashSharp,
-  warningOutline,
   warningSharp,
 } from 'ionicons/icons';
+
+import { useToast } from 'vue-toastification';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+
+const router = useRouter();
+const toast = useToast();
 
 const selectedIndex = ref(0);
 const appPages = [
   {
-    title: 'Inbox',
-    url: '/folder/Inbox',
-    iosIcon: mailOutline,
-    mdIcon: mailSharp,
+    title: 'Login',
+    url: '/Auth/Login',
+    mdIcon: personSharp,
+    guest: true,
   },
   {
-    title: 'Outbox',
-    url: '/folder/Outbox',
-    iosIcon: paperPlaneOutline,
-    mdIcon: paperPlaneSharp,
+    title: 'Home',
+    url: '/home',
+    mdIcon: homeSharp,
+    guest: false,
   },
   {
-    title: 'Favorites',
-    url: '/folder/Favorites',
-    iosIcon: heartOutline,
-    mdIcon: heartSharp,
+    title: 'Sample',
+    url: '/folder/Sample',
+    mdIcon: logOutSharp,
+    guest: false,
   },
-  {
-    title: 'Archived',
-    url: '/folder/Archived',
-    iosIcon: archiveOutline,
-    mdIcon: archiveSharp,
-  },
-  {
-    title: 'Trash',
-    url: '/folder/Trash',
-    iosIcon: trashOutline,
-    mdIcon: trashSharp,
-  },
-  {
-    title: 'Spam',
-    url: '/folder/Spam',
-    iosIcon: warningOutline,
-    mdIcon: warningSharp,
-  },
-];
-const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
-const path = window.location.pathname.split('folder/')[1];
-if (path !== undefined) {
-  selectedIndex.value = appPages.findIndex((page) => page.title.toLowerCase() === path.toLowerCase());
-}
+];
+
+const onLogout = async () => {
+
+  fetch('http://localhost:8000/api/logout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+    },
+  })
+
+  localStorage.removeItem('user');
+  localStorage.removeItem('access_token');
+
+  router.replace('/Auth/Login');
+
+  toast.success('Logout successful');
+
+  
+};
+
 </script>
 
 <style scoped>
